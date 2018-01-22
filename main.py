@@ -4,10 +4,17 @@ from flask import jsonify
 import requests
 import json
 import re
+import secrets
+
+from flask_sslify import SSLify
 
 app = Flask(__name__)
 
-URL = 'https://api.telegram.org/bot502455359:AAHlfIZenSBfeqieXn8maC4i1a032f6mNys/'
+sslify = SSLify(app)
+
+token = secrets.token
+
+URL = 'https://api.telegram.org/bot' + token + '/'
 
 def write_json(data, filename='answer.json'):
     with open(filename, 'w') as f:
@@ -49,8 +56,8 @@ def index():
         return jsonify(r)
     return '<h1>Hello bot</h1>'
 
-# Setting webhook url
-# https://api.telegram.org/bot502455359:AAHlfIZenSBfeqieXn8maC4i1a032f6mNys/setWebhook?url=https://fec30acf.ngrok.io/
+# # Setting webhook url to localhost using ngrok app
+# https://api.telegram.org/botTOKEN/setWebhook?url=https://fec30acf.ngrok.io/
 
 if __name__ == '__main__':
     app.run()
