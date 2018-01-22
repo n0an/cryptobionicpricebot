@@ -3,6 +3,7 @@ from flask import request
 from flask import jsonify
 import requests
 import json
+import re
 
 app = Flask(__name__)
 
@@ -18,8 +19,18 @@ def send_message(chat_id, text='blablabla'):
     r = requests.post(url, json=answer)
     return r.json()
 
+def parse_text(text):
+    pattern = r'/\w+'
+    crypto = re.search(pattern, text).group()
+    # print(crypto)
+    return crypto[1:]
 
-
+def get_price(crypto='bitcoin'):
+    url = 'https://api.coinmarketcap.com/v1/ticker/{}'.format(crypto)
+    r = requests.get(url).json()
+    price = r[-1]['price_usd']
+    return price
+    # write_json(r.json(), filename='price.json')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -29,9 +40,11 @@ def index():
         chat_id = r['message']['chat']['id']
         message_text = r['message']['text']
 
-        if 'bitcoin' in message_text:
-            send_message(chat_id, text='очень дорогой')
+        pattern = r'/\w+'
 
+        if re.search(pattern, message_text):
+            price = get_price(parse_text(message_text))
+            send_message(chat_id, text=price)
 
         return jsonify(r)
     return '<h1>Hello bot</h1>'
