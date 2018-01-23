@@ -20,9 +20,11 @@ def write_json(data, filename='answer.json'):
     with open(filename, 'w') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-def send_message(chat_id, text='blablabla'):
+def send_message(chat_id, text='blablabla', keyboard=None):
     url = URL + 'sendMessage'
     answer = {'chat_id': chat_id, 'text': text}
+    if keyboard:
+        answer['reply_markup'] = keyboard
     r = requests.post(url, json=answer)
     return r.json()
 
@@ -39,6 +41,11 @@ def get_price(crypto='bitcoin'):
     return price
     # write_json(r.json(), filename='price.json')
 
+def get_main_keyboard():
+    reply_markup = { 'keyboard': [[{'text': '/bitcoin'}, {'text': '/ethereum'}, {'text': '/ripple'}]]}
+    return reply_markup
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -51,7 +58,7 @@ def index():
 
         if re.search(pattern, message_text):
             price = get_price(parse_text(message_text))
-            send_message(chat_id, text=price)
+            send_message(chat_id, text=price, keyboard=get_main_keyboard())
 
         return jsonify(r)
     return '<h1>Hello bot</h1>'
