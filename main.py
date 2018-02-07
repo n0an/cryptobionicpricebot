@@ -37,8 +37,13 @@ def parse_text(text):
 def get_price(crypto='bitcoin'):
     url = 'https://api.coinmarketcap.com/v1/ticker/{}'.format(crypto)
     r = requests.get(url).json()
-    price = r[-1]['price_usd']
-    return price
+
+    try:
+        price = r[-1]['price_usd']
+        return price
+    except KeyError:
+        print('price parsing error')
+
     # write_json(r.json(), filename='price.json')
 
 def get_main_keyboard():
@@ -52,7 +57,12 @@ def index():
         r = request.get_json()
         # write_json(r)
         chat_id = r['message']['chat']['id']
-        message_text = r['message']['text']
+
+        try:
+            message_text = r['message']['text']
+        except KeyError:
+            print('error message text parsing')
+            return jsonify(r)
 
         pattern = r'/\w+'
 
